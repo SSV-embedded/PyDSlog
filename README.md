@@ -2,7 +2,8 @@
 
 # PyDSlog
 
-This app is installed by default on the RMG/941. It allows to read the sensor values coming from the serial RS485 interface or via MQTT and stores them in CSV files which can easily be uploaded to AWS S3 thanks to an S3 integration. It is also possible to stream the values directly to the AWS IoT Core.
+This app is installed by default on the RMG/941. It allows to read the sensor values coming from the serial RS485 interface 
+or via MQTT and stores them in CSV files.
 
 PyDSlog claims to make the data acquisition for machine learning and AI applications in the RMG/941 fast and easy.
 
@@ -13,22 +14,20 @@ port and the size of the block to be read.
 
 For the MLS/160A:
 ```
-x = PyDSlog.stream.MLS160A_stream(sz_block=500, 
-         channels_to_use=["ACCX", "ACCY", "ACCZ", "GYRX", "GYRY", "GYRZ"],
+x = PyDSlog.stream.MLS160A_stream(sz_block=500, channels_to_use=["ACCX", "ACCY", "ACCZ", "GYRX", "GYRY", "GYRZ"],
          frequency=500, port="COM15", baudrate=115200, n_frame=100)
 ```
 and for the IO5640-DS:
 ```
-x = PyDSlog.stream.IO5640_stream(sz_block=100, 
-         channels_to_use=["AI4U", "AI3U", "AI2U", "AI1U", "AI1I", "AI2I"], 
-         frequency=500, port="COM15", baudrate=115200)
+x = PyDSlog.stream.IO5640_stream(sz_block=100, channels_to_use=["AI4U", "AI3U", "AI2U", "AI1U", "AI1I", "AI2I"], 
+        frequency=500, port="COM15", baudrate=115200)
 ```
 Where:
 
-```sz_block``` is the size of the block to be read at once when the stream is read.
-```channels_to_use``` are the channels to use. Possible are ```["ACCX", "ACCY", "ACCZ", "GYRX", "GYRY", "GYRZ"]``` for 
+* sz_block: is the size of the block to be read at once when the stream is read.
+* channels_to_use: are the channels to use. Possible are ```["ACCX", "ACCY", "ACCZ", "GYRX", "GYRY", "GYRZ"]``` for 
 the MLS/160A and ```["AI4U", "AI3U", "AI2U", "AI1U", "AI1I", "AI2I"]``` for the IO5640-DS.
-```frequency``` is the desired frequency and ```port``` is the serial port. the baudrate is fixed at 115200 and can not 
+* frequency: is the desired frequency and ```port``` is the serial port. the baudrate is fixed at 115200 and can not 
 be changed.
 
 To access the stream directly it is necessary to connect the sensor to the serial port. The ```connect()``` method is used 
@@ -81,19 +80,15 @@ The following classes are available for this purpose:
 
 For the MLS/160A:
 ```
-x = PyDSlog.csv.MLS160A_csv_saver(port, channels_to_use, frequency, block_size, 
-                  filepath, filename=None, labeled=False, save_as_signal=False,
-                  header=True, custom_header=None, add_tmp=None, date_format="%d/%m/%Y,%H:%M:%S", 
-                  baudrate=115200, w_mode="a", delimiter=",")
+x = PyDSlog.csv.MLS160A_csv_saver(port, channels_to_use, frequency, block_size, filepath, filename=None, labeled=False, save_as_signal=False,
+                 header=True, custom_header=None, add_tmp=None, date_format="%d/%m/%Y,%H:%M:%S", baudrate=115200, w_mode="a", delimiter=",")
 
 ```
 
 and for the IO5640-DS:
 ```
-x = PyDSlog.csv.IO5640_csv_saver(port, channels_to_use, frequency, block_size, 
-                  filepath, filename=None, labeled=False, save_as_signal=False,
-                  header=True, custom_header=None, add_tmp=None, date_format="%d/%m/%Y,%H:%M:%S", 
-                  baudrate=115200, w_mode="a", delimiter=",")
+x = PyDSlog.csv.IO5640_csv_saver(port, channels_to_use, frequency, block_size, filepath, filename=None, labeled=False, save_as_signal=False,
+                 header=True, custom_header=None, add_tmp=None, date_format="%d/%m/%Y,%H:%M:%S", baudrate=115200, w_mode="a", delimiter=",")
 
 ```
 
@@ -105,28 +100,21 @@ the MLS/160A and ```["AI4U", "AI3U", "AI2U", "AI1U", "AI1I", "AI2I"]``` for the 
 ```frequency``` is the desired frequency and ```port``` is the serial port. the baudrate is fixed at 115200 and can not 
 be changed.
 
-Labeled: default False. boolean.
+* Labeled: default False. boolean.
 If the sensor values have to be labelled (in order to be used with Supervised Learning), it is necessary to use ```labeled=True```.
-
-filepath: default None. string pointing to the location of the csv file.
+* filepath: default None. string pointing to the location of the csv file.
 filename: default None. string with name of file.
-
-save_as_signal: default False. boolean.
+* save_as_signal: default False. boolean.
 If the values have to be interpreted as signals, it is necessary to use ```save_as_signal=True```. This makes it possible to use an FFT function later. A separate csv file is generated for each channel. The values that represent a signal are separated by commas. A newline character separates the signals from each other. Each signal has a length of sz_block values.
-
-header: default True. boolean.
+* header: default True. boolean.
 If true, the name of the channel is used as the header
-
-custom_header: default None. string
+* custom_header: default None. string
 In case a different header than the name of the channels is needed.
-
-add_tmp: default None. also possible: date, us or ms.
+* add_tmp: default None. also possible: date, us or ms.
 In case you want to use a timestamp. for ```add_tmp="date"``` the format in ```date_format``` is used.
-
-date_format: default "%d/%m/%Y,%H:%M:%S"
+* date_format: default ```"%d/%m/%Y,%H:%M:%S"```
 The format for the date used. only necessary if ```add_tmp="date"``` 
-
-delimiter: ","
+* delimiter: ","
 The separator character used.
 
 Once the class to generate the CSV file is initialized it is possible to use the ```start()``` method to start saving the 
@@ -236,11 +224,11 @@ PyDSlog.classificator.SignalClassificator(min_pears_correlation=0.7, max_subgrou
 ```
 where:
 
-min_pears_correlation: Default is 0.7. float.
+* min_pears_correlation: Default is 0.7. float.
 is the minimum pearson correlation to be used to group a new vector to a group. 
-max_subgroups: Default is 5. integer.
+* max_subgroups: Default is 5. integer.
 is the maximum quantity of groups generated while learning.
-outliers: Default False. Boolean.
+* outliers: Default False. Boolean.
 If the average distance found when predicting a class for a new vector is lower than the tolerance (see ```predict(signals, tolerance)```), then return -1 
 as class indicating that it is an unknown class or an anomaly
 
