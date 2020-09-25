@@ -1,4 +1,4 @@
-![alt text](https://github.com/SSV-embedded/PyDSlog/master/images/io5640-ds_plus_pydslog.jpg "PyDSlog data streaming library")
+![alt text](https://github.com/SSV-embedded/PyDSlog/blob/master/images/io5640-ds_plus_pydslog.jpg "PyDSlog data streaming library")
 
 # PyDSlog
 
@@ -13,13 +13,15 @@ port and the size of the block to be read.
 
 For the MLS/160A:
 ```
-x = PyDSlog.stream.MLS160A_stream(sz_block=500, channels_to_use=["ACCX", "ACCY", "ACCZ", "GYRX", "GYRY", "GYRZ"],
+x = PyDSlog.stream.MLS160A_stream(sz_block=500, 
+         channels_to_use=["ACCX", "ACCY", "ACCZ", "GYRX", "GYRY", "GYRZ"],
          frequency=500, port="COM15", baudrate=115200, n_frame=100)
 ```
 and for the IO5640-DS:
 ```
-x = PyDSlog.stream.IO5640_stream(sz_block=100, channels_to_use=["AI4U", "AI3U", "AI2U", "AI1U", "AI1I", "AI2I"], 
-        frequency=500, port="COM15", baudrate=115200)
+x = PyDSlog.stream.IO5640_stream(sz_block=100, 
+         channels_to_use=["AI4U", "AI3U", "AI2U", "AI1U", "AI1I", "AI2I"], 
+         frequency=500, port="COM15", baudrate=115200)
 ```
 Where:
 
@@ -79,15 +81,19 @@ The following classes are available for this purpose:
 
 For the MLS/160A:
 ```
-x = PyDSlog.csv.MLS160A_csv_saver(port, channels_to_use, frequency, block_size, filepath, filename=None, labeled=False, save_as_signal=False,
-                 header=True, custom_header=None, add_tmp=None, date_format="%d/%m/%Y,%H:%M:%S", baudrate=115200, w_mode="a", delimiter=",")
+x = PyDSlog.csv.MLS160A_csv_saver(port, channels_to_use, frequency, block_size, 
+                  filepath, filename=None, labeled=False, save_as_signal=False,
+                  header=True, custom_header=None, add_tmp=None, date_format="%d/%m/%Y,%H:%M:%S", 
+                  baudrate=115200, w_mode="a", delimiter=",")
 
 ```
 
 and for the IO5640-DS:
 ```
-x = PyDSlog.csv.IO5640_csv_saver(port, channels_to_use, frequency, block_size, filepath, filename=None, labeled=False, save_as_signal=False,
-                 header=True, custom_header=None, add_tmp=None, date_format="%d/%m/%Y,%H:%M:%S", baudrate=115200, w_mode="a", delimiter=",")
+x = PyDSlog.csv.IO5640_csv_saver(port, channels_to_use, frequency, block_size, 
+                  filepath, filename=None, labeled=False, save_as_signal=False,
+                  header=True, custom_header=None, add_tmp=None, date_format="%d/%m/%Y,%H:%M:%S", 
+                  baudrate=115200, w_mode="a", delimiter=",")
 
 ```
 
@@ -170,7 +176,7 @@ x.stop_csv()
 
 The output will be something like:
 
-![alt text](https://github.com/SSV-embedded/PyDSlog/master/images/csv.jpg "CSV demo file")
+![alt text](https://github.com/SSV-embedded/PyDSlog/blob/master/images/csv.jpg "CSV demo file")
 
 
 ### Do FFT
