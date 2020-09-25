@@ -2,10 +2,17 @@
 
 # PyDSlog
 
-This app is installed by default on the RMG/941. It allows to read the sensor values coming from the serial RS485 interface 
-or via MQTT and stores them in CSV files.
+PyDSlog claims to make the data acquisition for machine learning and AI applications on the RMG/941 fast and easy.
 
-PyDSlog claims to make the data acquisition for machine learning and AI applications in the RMG/941 fast and easy.
+Installed by default on the RMG/941. It allows to read the sensor values coming from the serial RS485 interface 
+or via MQTT and stores them in CSV files. 
+
+### Installation
+
+```
+pip install pydslog
+```
+
 
 ### Access to stream
 
@@ -16,7 +23,7 @@ For the MLS/160A:
 ```
 x = PyDSlog.stream.MLS160A_stream(sz_block=500, 
         channels_to_use=["ACCX", "ACCY", "ACCZ", "GYRX", "GYRY", "GYRZ"],
-        frequency=500, port="COM15", baudrate=115200, n_frame=100)
+        frequency=500, port="COM15", baudrate=115200)
 ```
 and for the IO5640-DS:
 ```
