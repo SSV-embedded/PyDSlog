@@ -173,7 +173,7 @@ The output will be something like:
 ![alt text](https://github.com/SSV-embedded/PyDSlog/blob/master/images/csv.jpg "CSV demo file")
 
 
-### Do FFT
+### Fourier Transformation
 
 PyDSlog has a small class included to help transform the signals into the frequency spectrum.
 
