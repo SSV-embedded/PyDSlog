@@ -1,0 +1,19 @@
+{
+    "name": "node-red-contrib-pydslog2mqtt",
+    "version": "0.0.1",
+    "description": "A Node-RED node for get data from pydslog2mqtt service/docker",
+    "keywords": [
+        "node-red",
+        "mls160a",
+        "io5640",
+        "pydslog",
+        "pydslog2mqtt"
+    ],
+    "author": "apps@ssv-embedded.de",
+    "license": "Apache-2.0",
+    "node-red": {
+        "nodes": {
+            "pydslog2mqtt": "pydslog2mqtt.js"
+        }
+    }
+}

@@ -1,0 +1,157 @@
+<!--
+  Copyright 2016 SSV Software Systems
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type="text/x-red" data-template-name="pydslog">
+	<div class="form-row">
+		<label for="node-input-broker"><i class="fa fa-globe"></i> Broker</label>
+		<input type="text" id="node-input-broker">
+	</div>
+	<div class="form-row">
+		<label for="node-input-topic"><i class="fa fa-tasks"></i> Topic prefix</label>
+		<input type="text" id="node-input-topic">
+	</div>
+	<div class='form-row'>
+		<label for='node-input-device'><i class='fa fa-hdd-o'></i> Device</label>
+		<select type='text' id='node-input-device'>
+			<option value="mls160a">MLS/160A</option>
+			<option value="io5640">IO/5640-DS</option>
+		</select>
+	</div>
+	<div class="form-row">
+		<label for="node-input-channel"><i class="fa fa-list"></i> Channels</label>
+		<div class="form-row" id="hide-mls160a" style="display: inline-block; position: relative; width: 70%; height: 20px;">
+		<input type="checkbox" id="node-input-0-ACCX" style="display: inline-block; width: auto; vertical-align: top;">ACCX&nbsp
+		<input type="checkbox" id="node-input-0-ACCY" style="display: inline-block; width: auto; vertical-align: top;">ACCY&nbsp
+		<input type="checkbox" id="node-input-0-ACCZ" style="display: inline-block; width: auto; vertical-align: top;">ACCZ&nbsp
+		<br>
+		<input type="checkbox" id="node-input-0-GYRX" style="display: inline-block; width: auto; vertical-align: top;">GYRX&nbsp
+		<input type="checkbox" id="node-input-0-GYRY" style="display: inline-block; width: auto; vertical-align: top;">GYRY&nbsp
+		<input type="checkbox" id="node-input-0-GYRZ" style="display: inline-block; width: auto; vertical-align: top;">GYRZ&nbsp
+		</div>
+
+		<div class="form-row" id="hide-io5640" style="display: inline-block; position: relative; width: 70%; height: 20px;">
+		<input type="checkbox" id="node-input-1-AI1U" style="display: inline-block; width: auto; vertical-align: top;">AI1U&nbsp
+		<input type="checkbox" id="node-input-1-AI2U" style="display: inline-block; width: auto; vertical-align: top;">AI2U&nbsp
+		<input type="checkbox" id="node-input-1-AI3U" style="display: inline-block; width: auto; vertical-align: top;">AI3U&nbsp
+		<input type="checkbox" id="node-input-1-AI4U" style="display: inline-block; width: auto; vertical-align: top;">AI4U&nbsp
+		<br>
+		<input type="checkbox" id="node-input-1-AI1I" style="display: inline-block; width: auto; vertical-align: top;">AI1I&nbsp
+		<input type="checkbox" id="node-input-1-AI2I" style="display: inline-block; width: auto; vertical-align: top;">AI2I&nbsp
+		<input type="checkbox" id="node-input-1-AI3I" style="display: inline-block; width: auto; vertical-align: top;">AI3I&nbsp
+		<input type="checkbox" id="node-input-1-AI4I" style="display: inline-block; width: auto; vertical-align: top;">AI4I&nbsp
+		</div>
+	</div>
+	<div class="form-row">
+		<label for="node-input-freq"><i class="fa fa-signal"></i> Frequence</label>
+		<input type="number" id="node-input-freq" min="1" max="1024" style="width: 100px;">
+	</div>
+	<br>
+	<div class="form-row">
+		<label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+		<input type="text" id="node-input-name">
+	</div>
+</script>
+
+<script type="text/x-red" data-help-name="pydslog">
+	<p>Receive data from pydslog2mqtt service with MLS/160A or IO/5640-DS sensors<br>
+	<h3> Input </h3>
+	<dl class="message-properties">
+		Start and stop data streaming from pydslog2mqtt service
+		<dt class="optional"> start  <span class="property-type"> String </span> </dt>
+		<dt class="optional"> stop  <span class="property-type"> String </span> </dt>
+	</dl>
+	<h3> Output </h3>
+	<dl class="message-properties">
+		Data from sensor in JSON format, example MLS/160A with 3 channels:
+		<pre> 
+		{ 
+			time: "2021-03-30T08:25:20",
+			data: {
+				ACCX: [...],
+				ACCY: [...],
+				ACCZ: [...]
+			}
+		}
+		</pre>
+	</dl>
+	<h3> Detail </h3>
+	<dl class="message-properties">
+		<ul>
+			<li><b>Topic prefix</b>: topic prefix configured in pydslog2mqtt</li>
+			<li><b>Device</b>: choose device</li>
+			<li><b>Channel</b>: choose wanted data channels of device</li>
+			<li><b>Frequence</b>: sample rate</li>
+		</ul>
+	</dl>
+	</code>
+</p>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('pydslog',{
+		category: 'network',
+		defaults: {
+			name: {value:""},
+			topic: {value:""},
+			device: {value:"mls160a", required:true},
+			freq: {value:512, required:true},
+			channels: {value:[], required:true},
+			broker: {type:"mqtt-broker", required:true}
+		},
+		color:"#4d94ff",
+		inputs:1,
+		outputs:1,
+		icon: "frequence.png",
+		label: function() {
+			return this.name||this.device||"pydslog";
+		},
+		labelStyle: function() {
+			return this.name?"node_label_italic":"";
+		},
+		oneditprepare: function() {
+			var that = this;
+			function initChannels() {
+				$('div[id^="hide-"]').hide();
+				var dev = $("#node-input-device").val();
+				var id = $('#node-input-device').prop('selectedIndex');
+				for(var i=0; i< that.channels.length; i++) {
+					var idd = 'input[id^="node-input-'+id+'-'+that.channels[i]+'"]'
+					$(idd).prop('checked', true);
+				}
+				$("#hide-"+dev).show();
+			}
+			$('#node-input-device').on('change', function() {
+				initChannels();
+			});
+			initChannels();
+		},
+		oneditsave: function() {
+			var that = this;
+			this.channels = []
+			var dev = $('#node-input-device').prop('selectedIndex');
+			if (dev >= 0) {
+				$('input[id^="node-input-'+dev+'-"]').each(function(i) {
+					if($(this).prop('checked')) {
+						var c = $(this).attr("id").substr(13)
+						that.channels.push(c)
+					}
+				});
+			}
+			if (this.channels.length <= 0)
+				return false;
+		}
+	});
+</script>
