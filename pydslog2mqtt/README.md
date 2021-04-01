@@ -1,34 +1,64 @@
 
 # Usage MLS/160A with Docker
 
-## Install on RMG/938
+## Install Docker
 - HowTo install docker on RMG/938
 	```
-	apt update
-	apt install ca-certificates docker-ce
-	apt install rmg938-app-docker
+	apt-get update && apt-get upgrade
+	apt-get install ca-certificates docker-ce
+	apt-get install rmg938-app-docker
 	```
 
-- Download docker images
+- HowTo install docker on RaspberryPi or Debian
 	```
-	docker pull eclipse-mosquitto:openssl
-	docker pull ssvembeddedde/pydslog2mqtt:0.1.0
-	docker pull nodered/node-red:latest
+	sudo apt-get update && sudo apt-get upgrade
+	sudo apt-get install -y apt-transport-https ca-certificates
+	curl -sSL https://get.docker.com | sh
 	```
-
-- Start MQTT broker
+	Add user to docker group (here user `pi`)
 	```
-	mkdir -m 777 /media/data/tt_mosquitto
-	cat > /media/data/tt_mosquitto/mosquitto.conf <<EOF
-	persistence false
-	allow_anonymous true
-	log_dest none
-	listener 1883
-	EOF
-
-	docker run -d -p 1883:1883 -v /media/data/tt_mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf --name tt_mosquitto eclipse-mosquitto:openssl
+	sudo usermod -aG docker pi
 	```
 
+- HowTo install docker-compose on RaspberryPi or Debian
+	```
+	sudo apt-get install -y libffi-dev libssl-dev python3 python3-pip
+	sudo pip3 -v install docker-compose
+	```
+
+## Download docker images
+```
+docker pull eclipse-mosquitto:openssl
+docker pull ssvembeddedde/pydslog2mqtt:0.1.0
+docker pull nodered/node-red:latest
+```
+
+## Create configuration
+Create minimal configuration for MQTT broker and data directory for Node-RED
+- On RMG/938
+	```
+	WORK_DIR=/media/data
+	```
+- On RaspberryPi or Debian
+	```
+	WORK_DIR=~/work
+	```
+Create mosquitto configuration
+```
+mkdir -p $WORK_DIR/tt_mosquitto $WORK_DIR/tt_nodered
+cat > $WORK_DIR/tt_mosquitto/mosquitto.conf <<EOF
+persistence false
+allow_anonymous true
+log_dest none
+listener 1883
+EOF
+```
+
+## Start all containers manualy
+- Start mosquitto
+	```
+	docker run -d -p 1883:1883 -v $WORK_DIR/tt_mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf --name tt_mosquitto eclipse-mosquitto:openssl
+	```
 - Start pydslog2mqtt
 	- Find MQTT broker ip
 	```
@@ -41,59 +71,48 @@
 
 - Start Node-RED docker
 	```
-	mkdir -m 777 /media/data/tt_nodered
-
-	docker run -d -p 1880:1880 -v /media/data/tt_nodered:/data --name tt_nodered nodered/node-red:latest
+	docker run -d -p 1880:1880 -v $WORK_DIR/tt_nodered:/data --name tt_nodered nodered/node-red:latest
 	```
 
-## Install on RaspberryPi, Linux
-### HowTo install docker
-	https://phoenixnap.com/kb/docker-on-raspberry-pi
+## Start containers with docker-compose
+- Create docker-compose file
+```
+cat > ~/work/docker-compose.yaml <<-EOF
+version: "3.9"
+services:
+  mosquitto:
+    image: eclipse-mosquitto:openssl
+    ports:
+      - 1883:1883
+    volumes:
+      - ~/work/tt_mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    restart: unless-stopped
+  pydslog2mqtt:
+    image: ssvembeddedde/pydslog2mqtt:0.1.0
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyS0"
+    environment:
+      - MQTT_URL=mqtt://mosquitto:1883
+    restart: unless-stopped
+  nodered:
+    image: nodered/node-red:latest
+    ports:
+      - 1880:1880
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyS0"
+    volumes:
+      - ~/work/tt_nodered:/data
+    restart: unless-stopped
+EOF
+```
 
-### Start manualy
-- Download docker images
-	```
-	docker pull eclipse-mosquitto:openssl
-	docker pull ssvembeddedde/pydslog2mqtt:0.1.0
-	docker pull nodered/node-red:latest
-	```
-
-- Start MQTT broker
-	- Create a simple mosquitto configuration and start container
-	```
-	mkdir -m 777 ~/work/tt_mosquitto
-	cat > ~/work/tt_mosquitto/mosquitto.conf <<EOF
-	persistence false
-	allow_anonymous true
-	log_dest none
-	listener 1883
-	EOF
-
-	docker run -d -p 1883:1883 -v ~/work/tt_mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf --name tt_mosquitto eclipse-mosquitto:openssl
-	```
-
-- Start pydslog2mqtt
-	- Find MQTT broker ip
-	```
-	docker inspect tt_mosquitto | grep "IPAddress"
-	```
-	- Find serial port where sensor is connected to (here /dev/ttyUSB0) and start container
-	```
-	docker run -d --name tt_pydslog2mqtt --device /dev/ttyUSB0:/dev/ttyS0 -e "MQTT_URL=172.17.0.2:1883" ssvembeddedde/pydslog2mqtt:0.1.0
-	```
-
-- Start Node-RED docker
-	```
-	mkdir -m 777 ~/work/tt_mosquitto/tt_nodered
-
-	docker run -d -p 1880:1880 -v ~/work/tt_mosquitto/tt_nodered:/data --name tt_nodered nodered/node-red:latest
-	```
-
-### Start with docker-compose
-ToDo
+- Start docker
+```
+docker-compose up -d
+```
 
 ## Use sensor
-- Open installed Node-RED
+- Open installed Node-RED: **http://***device-ip***:1880**
 - Install over `Manage palette` `node-red-contrib-pydslog2mqtt` node
 - Example flow to use:
 ```
