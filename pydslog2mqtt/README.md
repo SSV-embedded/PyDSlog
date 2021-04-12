@@ -98,8 +98,6 @@ services:
     image: nodered/node-red:latest
     ports:
       - 1880:1880
-    devices:
-      - "/dev/ttyUSB0:/dev/ttyS0"
     volumes:
       - ~/work/tt_nodered:/data
     restart: unless-stopped
