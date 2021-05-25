@@ -10,14 +10,14 @@ docker pull ssvembeddedde/pydslog2mqtt:0.1.0
 docker run -d --restart unless-stopped --name pydslog2mqtt --device /dev/ttyUSB4:/dev/ttyS0 -e "MQTT_URL=192.168.0.119:1883" ssvembeddedde/pydslog2mqtt:0.1.0
 ```
 
-### Parameter:
-* Serial port where MLS160A or IO/5640-SD sensor is connected should bind to internal device /dev/ttyS0:
+### Parameter
+* The serial port to which the MLS160A or IO/5640-SD is connected to should be bound to the internal device /dev/ttyS0:
 	```
 	--device /dev/ttyUSB4:/dev/ttyS0
 	```
 
-* Configuring MQTT broker settings with environment variables
-	* Broker addresse and port (port is optional, default 1883)
+* Configurate the MQTT broker settings with environment variables
+	* Broker addresse and port (port is optional, the default is 1883)
 	```
 	-e "MQTT_URL=192.168.0.119:1883"
 	```
@@ -26,13 +26,13 @@ docker run -d --restart unless-stopped --name pydslog2mqtt --device /dev/ttyUSB4
 	-e "MQTT_USER=user"
 	-e "MQTT_PASS=pass"
 	```
-	* Base Topic (optional, default `pydslog`):
+	* Base Topic (optional, the default is `pydslog`):
 	```
 	-e "MQTT_BASE_TOPIC=mls160a/0"
 	```
 
 # Build
-## HowTo multi platform build
+## How to do multi-platform building
 Create buildx and builder
 ```
 export DOCKER_BUILDKIT=1
@@ -71,14 +71,14 @@ pydslog2mqtt.py 2021-03-30 11:21:23,480 - INFO - MQTT: connect to mqtt test.mosq
 pydslog2mqtt.py 2021-03-30 11:21:23,537 - INFO - Running...
 ```
 
-## Build multi platform release and upload
+## Build multi-platform release and upload
 Build and push for amd64 and armv7
 ```
 ./build.sh del 0.1.0
 ```
 
 ## Build to tar
-Multi platform image can not be load to local database, it is only posible save it as OCI tar:
+The multi-platform image cannot be loaded into the local database, it is only posible save it as OCI tar:
 ```
 docker buildx build --no-cache --platform linux/amd64,linux/arm/v7 --tag "ssvembeddedde/pydslog2mqtt:0.1.0" --output type=oci,dest=pydslog2mqtt_0.1.0.tar .
 ```

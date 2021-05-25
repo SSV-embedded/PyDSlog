@@ -10,27 +10,27 @@
 * MLS/160A with USB or serial plug
 
 ## Installing Docker
-If Docker engine is not installed following are small HowTos
-- HowTo install docker on RMG/938
+In case the Docker engine is not installed yet, here are some short instructions:
+- How to install Docker on RMG/938
 	```
 	apt-get update && apt-get upgrade
 	apt-get install ca-certificates docker-ce
 	apt-get install rmg938-app-docker
 	```
 
-- HowTo install docker on RaspberryPi or Debian
+- How to install Docker on a RaspberryPi or Debian
 	```
 	sudo apt-get update && sudo apt-get upgrade
 	sudo apt-get install -y apt-transport-https ca-certificates
 	curl -sSL https://get.docker.com | sh
 	```
-	Add user to docker group (assume user `pi`)
+	Add user to the docker group (assume user `pi`)
 	```
 	sudo usermod -aG docker pi
 	```
-	For the changes to take place, you need to log out and then back in.
+	For the changes to happen, you need to log out and then back in again.
 
-- HowTo install docker-compose on RaspberryPi or Debian
+- How to install Docker Compose on a RaspberryPi or Debian
 	```
 	sudo apt-get install -y libffi-dev libssl-dev python3 python3-pip
 	sudo pip3 -v install docker-compose
@@ -53,7 +53,7 @@ Create minimal configuration for MQTT broker and data directory for Node-RED.
 	```
 	WORK_DIR=~/work
 	```
-Create work direktories and mosquitto minimal configuration
+Create work directories and the Mosquitto minimal configuration
 ```
 mkdir -p $WORK_DIR/tt_mosquitto $WORK_DIR/tt_nodered
 cat > $WORK_DIR/tt_mosquitto/mosquitto.conf <<EOF
@@ -100,21 +100,21 @@ docker-compose up -d
 ```
 
 ## Start all containers manually
-- Start mosquitto container
+- Start Mosquitto container
 	```
 	docker run -d -p 1883:1883 -v $WORK_DIR/tt_mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf --restart=unless-stopped --name tt_mosquitto eclipse-mosquitto:openssl
 	```
 - Start pydslog2mqtt
-	- Find MQTT broker ip
+	- Find the MQTT broker IP
 	```
 	docker inspect tt_mosquitto | grep "IPAddress"
 	```
-	- Find serial port where sensor is connected to (here /dev/ttyS2) and start container
+	- Find the serial port to which the sensor is connected to (here, it is /dev/ttyS2) and start the container
 	```
 	docker run -d --restart=unless-stopped --name tt_pydslog2mqtt --device /dev/ttyS2:/dev/ttyS0 -e "MQTT_URL=172.17.0.2:1883" ssvembeddedde/pydslog2mqtt:0.1.0
 	```
 
-- Start Node-RED docker
+- Start the Node-RED Docker
 	```
 	docker run -d -p 1880:1880 -v $WORK_DIR/tt_nodered:/data --restart=unless-stopped --name tt_nodered nodered/node-red:latest
 	```
